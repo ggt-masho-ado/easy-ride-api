@@ -3,7 +3,6 @@ package handlers
 import (
 	"easy-ride-api/internal/actions"
 	"easy-ride-api/internal/services"
-	"easy-ride-api/pkg/request"
 	"easy-ride-api/pkg/response"
 	"easy-ride-api/pkg/validate"
 	"encoding/json"
@@ -18,7 +17,7 @@ func SignInHandler(userService services.UserService) http.HandlerFunc {
 		//decode request json data to a struct
 		if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
 
-			data := request.Response{
+			data := response.Response{
 				Success: false,
 				Message: "Invalid request body",
 			}
@@ -31,7 +30,7 @@ func SignInHandler(userService services.UserService) http.HandlerFunc {
 		//validate struct
 		if err := validate.ValidateStruct(body); err != nil {
 
-			data := request.Response{
+			data := response.Response{
 				Success: false,
 				Message: "Login failed",
 				Errors:  err,
@@ -46,7 +45,7 @@ func SignInHandler(userService services.UserService) http.HandlerFunc {
 		session, err := userService.CreateUserSession(r.Context(), body.Email, body.Password)
 
 		if err != nil {
-			data := request.Response{
+			data := response.Response{
 				Success: false,
 				Message: err.Error(),
 			}
@@ -56,7 +55,7 @@ func SignInHandler(userService services.UserService) http.HandlerFunc {
 			return
 		}
 
-		data := request.Response{
+		data := response.Response{
 			Success: true,
 			Message: "Login is succesfull",
 			Data:    session,

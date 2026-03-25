@@ -4,7 +4,6 @@ import (
 	"easy-ride-api/internal/actions"
 	"easy-ride-api/internal/services"
 	"easy-ride-api/pkg/logger"
-	"easy-ride-api/pkg/request"
 	"easy-ride-api/pkg/response"
 	"easy-ride-api/pkg/validate"
 	"encoding/json"
@@ -17,7 +16,7 @@ func SignUpHandler(userService services.UserService) http.HandlerFunc {
 		var body actions.UserSignUp
 
 		if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
-			response.WriteJsonResponse(w, http.StatusBadRequest, request.Response{
+			response.WriteJsonResponse(w, http.StatusBadRequest, response.Response{
 				Success: false,
 				Message: "Invalid request body",
 			})
@@ -25,7 +24,7 @@ func SignUpHandler(userService services.UserService) http.HandlerFunc {
 		}
 
 		if validationErrs := validate.ValidateStruct(body); validationErrs != nil {
-			response.WriteJsonResponse(w, http.StatusUnprocessableEntity, request.Response{
+			response.WriteJsonResponse(w, http.StatusUnprocessableEntity, response.Response{
 				Success: false,
 				Message: "Signup failed",
 				Errors:  validationErrs,
@@ -35,7 +34,7 @@ func SignUpHandler(userService services.UserService) http.HandlerFunc {
 
 		user, err := userService.CreateNewUser(r.Context(), body.FullName, body.Email, body.Password, body.ConfirmPassword)
 		if err != nil {
-			response.WriteJsonResponse(w, http.StatusInternalServerError, request.Response{
+			response.WriteJsonResponse(w, http.StatusInternalServerError, response.Response{
 				Success: false,
 				Message: err.Error(),
 			})
@@ -43,7 +42,7 @@ func SignUpHandler(userService services.UserService) http.HandlerFunc {
 			return
 		}
 
-		response.WriteJsonResponse(w, http.StatusCreated, request.Response{
+		response.WriteJsonResponse(w, http.StatusCreated, response.Response{
 			Success: true,
 			Message: "User created successfully",
 			Data:    user,
