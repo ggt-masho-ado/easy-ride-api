@@ -19,7 +19,7 @@ func init() {
 	RegisterCustomValidation("kenyan_phone", func(fl validator.FieldLevel) bool {
 		phone := fl.Field().String()
 
-		matched, _ := regexp.MatchString(`^\+254\d{8}$`, phone)
+		matched, _ := regexp.MatchString(`^(\+254|0)\d{9}$`, phone)
 
 		return matched
 	})
@@ -61,6 +61,8 @@ func buildMessage(e validator.FieldError) string {
 		return fmt.Sprintf("%s must be at most %s characters", e.Field(), e.Param())
 	case "oneof":
 		return fmt.Sprintf("%s must be one of: %s", e.Field(), e.Param())
+	case "kenyan_phone":
+		return fmt.Sprintf("%s must be a valid Kenyan phone number (e.g. +254XXXXXXXXX or 0XXXXXXXXX)", e.Field())
 	default:
 		return fmt.Sprintf("%s failed on %s validation", e.Field(), e.Tag())
 	}
