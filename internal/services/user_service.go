@@ -4,7 +4,7 @@ import (
 	"context"
 	"easy-ride-api/internal/domain"
 	entity "easy-ride-api/internal/models"
-	"easy-ride-api/internal/respositories"
+	respositories "easy-ride-api/internal/repositories"
 	"easy-ride-api/pkg/utils"
 	"errors"
 	"time"
