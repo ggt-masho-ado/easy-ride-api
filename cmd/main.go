@@ -4,7 +4,7 @@ import (
 	"easy-ride-api/db"
 	"easy-ride-api/internal/handlers"
 	"easy-ride-api/internal/middleware"
-	respositories "easy-ride-api/internal/repositories"
+	"easy-ride-api/internal/repositories"
 	"easy-ride-api/internal/services"
 	"fmt"
 	"log"
@@ -21,10 +21,10 @@ func main() {
 	db.Connect()
 	defer db.Close()
 
-	userRepo := respositories.NewUserRepository(db.Pool)
+	userRepo := repositories.NewUserRepository(db.Pool)
 	userService := services.NewUserService(userRepo)
 
-	sessionRepo := respositories.NewSessionRepo(db.Pool)
+	sessionRepo := repositories.NewSessionRepo(db.Pool)
 	sessionService := services.NewSessionService(sessionRepo)
 
 	http.HandleFunc("GET /", (func(w http.ResponseWriter, r *http.Request) {
@@ -34,6 +34,7 @@ func main() {
 	http.Handle("POST /signin", middleware.Logger(handlers.SignInHandler(userService)))
 
 	http.Handle("POST /signup", handlers.SignUpHandler(userService))
+	http.Handle("POST /signout", middleware.AuthMiddleware(sessionService)(handlers.SignOut(userService)))
 
 	http.Handle("GET /users", middleware.AuthMiddleware(sessionService)(handlers.ListUsersHandler()))
 

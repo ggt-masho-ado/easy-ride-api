@@ -15,6 +15,7 @@ import (
 type UserService interface {
 	CreateNewUser(ctx context.Context, fullName, email, password, confirmPassword string) (*entity.User, error)
 	CreateUserSession(ctx context.Context, email, password string) (*entity.Session, error)
+	InvalidateUserSession(ctx context.Context, token string) error
 }
 
 type userService struct {
@@ -91,4 +92,13 @@ func (s *userService) CreateUserSession(c context.Context, email, password strin
 	}
 
 	return session, nil
+}
+
+func (s *userService) InvalidateUserSession(ctx context.Context, token string) error {
+
+	now := time.Now()
+
+	err := s.userRepo.InvalidateSession(ctx, token, now)
+
+	return err
 }

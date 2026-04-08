@@ -1,9 +1,10 @@
-package respositories
+package repositories
 
 import (
 	"context"
 	entity "easy-ride-api/internal/models"
 	"errors"
+	"time"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -19,6 +20,7 @@ type UserRepository interface {
 	GetUserByEmail(ctx context.Context, email string) (*entity.User, error)
 	GetUserByID(ctx context.Context, id string) (*entity.User, error)
 	CreateSession(ctx context.Context, user *entity.Session) (*entity.Session, error)
+	InvalidateSession(ctx context.Context, token string, expiresAt time.Time) error
 }
 
 // Concrete implementation — holds the connection pool.
@@ -124,4 +126,17 @@ func (r *userRepository) CreateSession(ctx context.Context, data *entity.Session
 	}
 
 	return session, nil
+}
+
+func (r *userRepository) InvalidateSession(ctx context.Context, token string, expiresAt time.Time) error {
+
+	query := `UPDATE sessions SET expires_at = $1 WHERE token = $2;`
+
+	_, err := r.pool.Exec(ctx, query, expiresAt, token)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
